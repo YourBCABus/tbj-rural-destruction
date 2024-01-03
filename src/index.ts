@@ -47,7 +47,7 @@ const main = async () => {
     // Every 5 seconds, sync the state
 
     while (true) {
-        // await resolveAt(utcClearTime());
+        await resolveAt(utcClearTime());
         console.log(`Running at: ${new Date().toLocaleString()}`);
 
         try {
@@ -63,7 +63,9 @@ const main = async () => {
             }
         }
 
-        process.exit(0);
+        console.log("Done running at:", new Date().toLocaleString());
+
+        console.log("\n\n");
     }
 };
 
