@@ -58,7 +58,10 @@ export default class EurekaContext {
     }
     query GetSpreadsheetId {
         id: currSpreadsheetId
-    } 
+    }
+    mutation ClearTempTimes {
+        clearAllTempTimes
+    }
     `;
 
     public async setSpreadsheetid(id: string) {
@@ -71,6 +74,13 @@ export default class EurekaContext {
 
         const response = await this.execQuery<GetSpreadsheetId>(EurekaContext.QUERIES, 'GetSpreadsheetId', {});
         return response.id;
+    }
+
+
+    public async clearTemps() {
+        type ClearAllTempTimes = GraphQLQuery<{}, {}>;
+
+        await this.execQuery<ClearAllTempTimes>(EurekaContext.QUERIES, 'ClearTempTimes', { });
     }
 }
 

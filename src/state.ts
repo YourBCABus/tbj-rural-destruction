@@ -43,5 +43,8 @@ export default class DestructionState {
 
         this.#currSheetId = await this.#eurekaContext.getSpreadsheetId();
         console.log("Updated internal spreadsheet ID");
+
+        await this.#eurekaContext.clearTemps();
+        console.log("Cleared temporary period times for today");
     }
 }
