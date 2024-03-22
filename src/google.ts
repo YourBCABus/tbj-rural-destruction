@@ -9,11 +9,16 @@ import { google, sheets_v4, drive_v3 } from 'googleapis';
 
 import { OAuth2Client } from 'google-auth-library';
 import { inspect } from 'util';
+import {
+    CLEARABLE_DATA_RANGE,
+    REPORT_TO_CELL,
+    parseDataRange,
+} from './consts';
 
 // If modifying these scopes, delete token.json.
 const SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
-    "https://www.googleapis.com/auth/drive",
+    'https://www.googleapis.com/auth/drive',
 ];
 
 // The file token.json stores the user's access and refresh tokens, and is
@@ -68,8 +73,8 @@ let driveApi: drive_v3.Drive | null;
 let sheetsApi: sheets_v4.Sheets | null;
 
 export const getOauthClient = async () => oauthClient ?? (oauthClient = await authorize());
-export const getDriveApi = async () => driveApi ?? (driveApi = google.drive({ version: 'v3', auth: await getOauthClient() }))
-export const getSheetsApi = async () => sheetsApi ?? (sheetsApi = google.sheets({ version: 'v4', auth: await getOauthClient() }))
+export const getDriveApi = async () => driveApi ?? (driveApi = google.drive({ version: 'v3', auth: await getOauthClient() }));
+export const getSheetsApi = async () => sheetsApi ?? (sheetsApi = google.sheets({ version: 'v4', auth: await getOauthClient() }));
 
 
 export const clearSpreadsheet = async (spreadsheetId: string) => {
@@ -82,31 +87,46 @@ export const clearSpreadsheet = async (spreadsheetId: string) => {
     const { rowCount, columnCount } = gridProperties;
     if (!rowCount || !columnCount) throw new Error("The sheet has no cells");
 
-    const rows = rowCount - 2;
-    const columns = columnCount - 3;
+    const { startCol, startRow, endCol, endRow } = parseDataRange(CLEARABLE_DATA_RANGE);
 
-    const overwritingData: sheets_v4.Schema$RowData[] = Array(rows).fill(null).map(() => ({
-        values: Array(columns).fill(null).map(() => ({ userEnteredValue: { stringValue: "" } }))
-    }))
+    const rows = endRow - startRow + 1;
+    const columns = endCol - startCol + 1;
 
-    const response = await sheetsApi.spreadsheets.batchUpdate({
+    const overwritingData: sheets_v4.Schema$RowData[] = Array(rows)
+        .fill(null)
+        .map(() => ({
+            values: Array(columns)
+                .fill(null)
+                .map(() => ({ userEnteredValue: { stringValue: "" } }))
+        }));
+
+    const clearCellsResponse = await sheetsApi.spreadsheets.batchUpdate({
         spreadsheetId,
         requestBody: { requests: [{ updateCells: {
-            range: {
+            start: {
                 sheetId: 0,
-                
-                startColumnIndex: 3,
-                endColumnIndex: 3 + columns,
-
-                startRowIndex: 2,
-                endRowIndex: 2 + rows,
+                columnIndex: startCol,
+                rowIndex: startRow,
             },
             rows: overwritingData,
             fields: "userEnteredValue"
         }}]}
     });
     
-    if (response.status !== 200) throw new Error(`Response failed: ${inspect(response, true, null, true)}`);
+    if (clearCellsResponse.status !== 200) {
+        throw new Error(`Response failed: ${inspect(clearCellsResponse, true, null, true)}`);
+    }
+
+    const resetReportToResponse = await sheetsApi.spreadsheets.values.update({
+        spreadsheetId,
+        range: REPORT_TO_CELL,
+        valueInputOption: "USER_ENTERED",
+        requestBody: { values: [[{ userEnteredValue: { stringValue: "" } }]] },
+    });
+
+    if (resetReportToResponse.status !== 200) {
+        throw new Error(`Response failed: ${inspect(resetReportToResponse, true, null, true)}`);
+    }
 };
 
 export const copySpreadsheet = async (spreadsheetId: string): Promise<string> => {

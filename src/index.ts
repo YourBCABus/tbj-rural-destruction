@@ -1,43 +1,48 @@
-import envSetup, { eurekaClientId, eurekaClientSecret, eurekaUrl, initialSheetId, utcClearTime } from "./env";
+import envSetup, { eurekaClientId, eurekaClientSecret, eurekaUrl, utcClearTime } from "./env";
 import DestructionState from "./state";
 
-const resolveAt = async (targetSecsAfterUTCMidnight: number) => {
+const resolveAt = async (targetTime: number) => {
     while (true) {
         const workingDate = new Date();
         workingDate.setUTCFullYear(1970);
         workingDate.setUTCMonth(0, 1);
-        const secondsSinceUTCMidnight = workingDate.getTime() / 1000;
+        const currTime = workingDate.getTime() / 1000;
 
         const SECONDS_PER_DAY = 24 * 60 * 60;
-        const in3Min = (secondsSinceUTCMidnight + 180) % SECONDS_PER_DAY;
+        const timeIn3Min = (currTime + 180) % SECONDS_PER_DAY;
 
-        if (in3Min < targetSecsAfterUTCMidnight) {
+        if (timeIn3Min < targetTime) { // If the target time is more than 3 minutes away...
             // Wait 1 minute
             await new Promise(res => setTimeout(res, 60 * 1000));
-        } else if (secondsSinceUTCMidnight > targetSecsAfterUTCMidnight) {
-            const secondsToWait = Math.min(60, SECONDS_PER_DAY - secondsSinceUTCMidnight);
+        } else if (currTime > targetTime) { // If the target time has already passed...
+            // Wait until the next day (in 1 minute increments)
+            const secondsToWait = Math.min(60, SECONDS_PER_DAY - currTime);
             await new Promise(res => setTimeout(res, secondsToWait * 1000));
-        } else {
+        } else { // Otherwise, the target time is within 3 minutes (active window)
+            // Head to the next section of the wait
             break;
         }
     }
+
+    // Target time is less than 3 minutes away, but is still in the future
     while (true) {
         const workingDate = new Date();
         workingDate.setUTCFullYear(1970);
         workingDate.setUTCMonth(0, 1);
-        const secondsSinceUTCMidnight = workingDate.getTime() / 1000;
-        if (secondsSinceUTCMidnight < targetSecsAfterUTCMidnight) {
+        const currTime = workingDate.getTime() / 1000;
+
+        if (currTime < targetTime) { // If the target time has not yet passed...
+            // Wait 2 seconds
             await new Promise(res => setTimeout(res, 2000));
-        } else break;
+        } else break; // Resolve the promise
     }
-}
+};
 
 
 const main = async () => {
     envSetup();
 
     const state = await DestructionState.create(
-        initialSheetId(),
         eurekaClientId(),
         eurekaClientSecret(),
         eurekaUrl(),
@@ -69,7 +74,4 @@ const main = async () => {
     }
 };
 
-
 main();
-
-

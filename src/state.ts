@@ -12,7 +12,6 @@ export default class DestructionState {
     }
 
     public static async create(
-        initialSheetId: string,
         clientId: string,
         clientSecret: string,
         eurekaUrl: string,
@@ -21,7 +20,7 @@ export default class DestructionState {
 
         const eurekaContext = new EurekaContext(clientId, clientSecret, eurekaUrl);
 
-        const sheetId = await eurekaContext.getSpreadsheetId() || initialSheetId;
+        const sheetId = await eurekaContext.getSpreadsheetId();
         return new DestructionState(sheetId, eurekaContext);
     }
 

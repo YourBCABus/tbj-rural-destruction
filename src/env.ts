@@ -10,7 +10,6 @@ const envVarAccessor = <T>(acc: () => T | undefined) => () => {
 export const eurekaUrl = envVarAccessor(() => process.env.EUREKA_URL);
 export const eurekaClientId = envVarAccessor(() => process.env.EUREKA_CLIENT_ID);
 export const eurekaClientSecret = envVarAccessor(() => process.env.EUREKA_CLIENT_SECRET);
-export const initialSheetId = envVarAccessor(() => process.env.INITIAL_SHEET_ID);
 export const utcClearTime = envVarAccessor(() => Number(process.env.UTC_CLEAR_TIME));
 
 const envSetup = () => {
@@ -20,7 +19,6 @@ const envSetup = () => {
         eurekaUrl();
         eurekaClientId();
         eurekaClientSecret();
-        initialSheetId();
         utcClearTime();
     } catch (e) {
         throw new Error("Missing env variables! (EUREKA_URL, EUREKA_CLIENT_ID, EUREKA_CLIENT_SECRET, UTC_CLEAR_TIME, and/or INITIAL_SHEET_ID)");
