@@ -12,6 +12,7 @@ import { inspect } from 'util';
 import {
     CLEARABLE_DATA_RANGE,
     REPORT_TO_CELL,
+    parseCell,
     parseDataRange,
 } from './consts';
 
@@ -117,11 +118,18 @@ export const clearSpreadsheet = async (spreadsheetId: string) => {
         throw new Error(`Response failed: ${inspect(clearCellsResponse, true, null, true)}`);
     }
 
-    const resetReportToResponse = await sheetsApi.spreadsheets.values.update({
+
+    const resetReportToResponse = await sheetsApi.spreadsheets.batchUpdate({
         spreadsheetId,
-        range: REPORT_TO_CELL,
-        valueInputOption: "USER_ENTERED",
-        requestBody: { values: [[{ userEnteredValue: { stringValue: "" } }]] },
+        requestBody: { requests: [{ updateCells: {
+            start: {
+                sheetId: 0,
+                columnIndex: parseCell(REPORT_TO_CELL, -1).col,
+                rowIndex: parseCell(REPORT_TO_CELL, -1).row,
+            },
+            rows: [{ values: [{ userEnteredValue: { stringValue: "Upper Caf." } }] }],
+            fields: "userEnteredValue"
+        }}]}
     });
 
     if (resetReportToResponse.status !== 200) {
