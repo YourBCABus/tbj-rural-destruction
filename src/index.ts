@@ -1,4 +1,4 @@
-import envSetup, { eurekaClientId, eurekaClientSecret, eurekaUrl, utcClearTime } from "./env";
+import envSetup, { eurekaClientId, eurekaClientSecret, eurekaUrl, utcClearTime, webhookUrl } from "./env";
 import DestructionState from "./state";
 
 const resolveAt = async (targetTime: number) => {
@@ -46,6 +46,7 @@ const main = async () => {
         eurekaClientId(),
         eurekaClientSecret(),
         eurekaUrl(),
+        webhookUrl(),
     );
 
 
@@ -63,8 +64,20 @@ const main = async () => {
                 console.error(e.message);
                 console.error(e.stack);
                 console.error(e);
+
+                await state.sendWebhookError(
+                    "An error occurred while running the version history clear",
+                    e.message,
+                    e.stack ?? "<No stack trace available>",
+                );
             } else {
                 console.error("Unknown error type:", e);
+
+                await state.sendWebhookError(
+                    "An error occurred while running the version history clear",
+                    "Unknown error type :(",
+                    e ? e.toString() : "<No error message available>",
+                );
             }
         }
 
