@@ -59,8 +59,10 @@ export default class EurekaContext {
     query GetSpreadsheetId {
         id: currSpreadsheetId
     }
-    mutation ClearTempTimes {
+    mutation ClearTemps {
+        syncAndFlushFutures
         clearAllTempTimes
+        clearAllTempPeriods
     }
     `;
 
@@ -78,9 +80,9 @@ export default class EurekaContext {
 
 
     public async clearTemps() {
-        type ClearAllTempTimes = GraphQLQuery<{}, {}>;
+        type ClearTemps = GraphQLQuery<{}, {}>;
 
-        await this.execQuery<ClearAllTempTimes>(EurekaContext.QUERIES, 'ClearTempTimes', { });
+        await this.execQuery<ClearTemps>(EurekaContext.QUERIES, 'ClearTemps', { });
     }
 }
 
