@@ -1,7 +1,7 @@
 {
   "name": "rural-destruction",
   "version": "0.1.0",
-  "description": "The Google Sheets integration backend for TableJet",
+  "description": "The Google Sheets history erasing service for TableJet",
   "main": "src/index.ts",
   "scripts": {
     "exec-dev": "ts-node src/index.ts",
@@ -9,21 +9,21 @@
     "build": "tsc",
     "start": "node dist/index.js",
 
-    "pm2-up": "npm run build && pm2 start dist/index.js --name tbj-ubiquitous-brocolli",
-    "pm2-down": "pm2 stop tbj-ubiquitous-brocolli",
+    "pm2-up": "npm run build && pm2 start dist/index.js --name tbj-rural-destruction",
+    "pm2-down": "pm2 stop tbj-rural-destruction",
 
     "oneshot": "ts-node src/index.ts -- --ONESHOT"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YourBCABus/tbj-ubiquitous-brocolli.git"
+    "url": "git+https://github.com/YourBCABus/tbj-rural-destruction.git"
   },
   "author": "Yenowa",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/YourBCABus/tbj-ubiquitous-brocolli/issues"
+    "url": "https://github.com/YourBCABus/tbj-rural-destruction/issues"
   },
-  "homepage": "https://github.com/YourBCABus/tbj-ubiquitous-brocolli#readme",
+  "homepage": "https://github.com/YourBCABus/tbj-rural-destruction#readme",
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.0",
     "@types/node": "^20.6.0",
