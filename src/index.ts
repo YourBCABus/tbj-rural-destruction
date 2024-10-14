@@ -1,6 +1,8 @@
 import envSetup, { eurekaClientId, eurekaClientSecret, eurekaUrl, utcClearTime, webhookUrl } from "./env";
 import DestructionState from "./state";
 
+const isOneShot = process.argv[1] === "--ONESHOT";
+
 const resolveAt = async (targetTime: number) => {
     while (true) {
         const workingDate = new Date();
@@ -53,7 +55,7 @@ const main = async () => {
     // Every 5 seconds, sync the state
 
     while (true) {
-        await resolveAt(utcClearTime());
+        if (!isOneShot) await resolveAt(utcClearTime());
         console.log(`Running at: ${new Date().toLocaleString()}`);
 
         try {
@@ -84,6 +86,7 @@ const main = async () => {
         console.log("Done running at:", new Date().toLocaleString());
 
         console.log("\n\n");
+        if (isOneShot) return;
     }
 };
 
