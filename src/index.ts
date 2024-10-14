@@ -1,7 +1,7 @@
 import envSetup, { eurekaClientId, eurekaClientSecret, eurekaUrl, utcClearTime, webhookUrl } from "./env";
 import DestructionState from "./state";
 
-const isOneShot = process.argv[1] === "--ONESHOT";
+const isOneShot = process.argv.includes("--ONESHOT");
 
 const resolveAt = async (targetTime: number) => {
     while (true) {
