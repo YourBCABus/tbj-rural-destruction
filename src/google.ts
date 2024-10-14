@@ -174,25 +174,34 @@ export const copyPerms = async (fromId: string, toId: string) => {
     const permsToCopy = permsToCopyResponse.data.permissions;
     if (!permsToCopy) throw new Error(`Failed to get permissions for file ${fromId}`);
 
-    const responses = await Promise.allSettled(permsToCopy.map(async perm => {
-        if (perm.role === "owner") return Promise.resolve();
+    const failures: [drive_v3.Schema$Permission, Error][] = [];
 
-        const createPermBody: drive_v3.Schema$Permission = {
-            role: perm.role,
-            type: perm.type,
-            emailAddress: perm.emailAddress,
-        };
-        const response = await driveApi.permissions.create({
-            fileId: toId,
-            sendNotificationEmail: false,
-            requestBody: createPermBody,
-        });
-        if (response.status !== 200) throw new Error(`Req failed: ${inspect(response, true, null, true)}`);
-    }));
+    for (const perm of permsToCopy) {
+        try {
+            if (perm.role === "owner") continue;
+    
+            const createPermBody: drive_v3.Schema$Permission = {
+                role: perm.role,
+                type: perm.type,
+                emailAddress: perm.emailAddress,
+            };
+            const response = await driveApi.permissions.create({
+                fileId: toId,
+                sendNotificationEmail: false,
+                requestBody: createPermBody,
+            });
+            if (response.status !== 200) throw new Error(`Req failed: ${inspect(response, true, null, true)}`);
+        } catch (e) {
+            if (e instanceof Error) failures.push([perm, e]);
+            else failures.push([perm, new Error(`Req failed: ${inspect(e, true, null, true)}`)]);
+        }
+    }
 
-    const rejected = responses.flatMap(res => res.status === "rejected" ? [res.reason] : []);
-    if (rejected.length > 0) {
-        throw new Error("Copy Perms failed due to the following errors:\n" + rejected.map(e => (e ?? "").toString()).join("\n"));
+    if (failures.length > 0) {
+        const errors = failures.map(
+            ([perm, error]) => `When trying to add permission ${inspect(perm, true, null, true)}, got error ${error.toString()}`,
+        );
+        throw new Error("Copy Perms failed due to the following errors:\n" + errors.join("\n"));
     }
 };
 
@@ -200,7 +209,7 @@ export const deleteSheet = async (spreadsheetId: string) => {
     const driveApi = await getDriveApi();
 
     const response = await driveApi.files.delete({ fileId: spreadsheetId });
-    if (response.status < 200 || response.status > 299) throw new Error(`Req failed: ${inspect(response, true, null, true)}`);
+    if (response.status < 200 || response.status > 299) throw new Error(`Deleting sheet failed: ${inspect(response, true, null, true)}`);
 }
 
 const setup = async () => {
