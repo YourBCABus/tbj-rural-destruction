@@ -60,7 +60,7 @@ export default class DestructionState {
         const sanitizedDescription = description.replace(/\`\#\@\*\-/g, s => `\\${s}`);
         const sanitizedError = error.replace(/`{3}/g, s => `'''`);
 
-        const content = `# ${sanitizedTitle}\n<@&861287028758544415>\n${sanitizedDescription}\n\`\`\`${sanitizedError}\`\`\``;
+        const content = `# ${sanitizedTitle}\n<@&1302455829160788060>\n${sanitizedDescription}\n\`\`\`${sanitizedError}\`\`\``;
 
         const body = {
             content,
