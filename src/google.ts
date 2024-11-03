@@ -145,7 +145,8 @@ export const copySpreadsheet = async (spreadsheetId: string): Promise<string> =>
     const parentId = containingFolder.data.parents?.[0];
     if (!parentId) throw new Error(`Copied file was not in an folder: ${inspect(containingFolder, true, null, true)}`);
 
-    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const EST_UTC_HOUR_DIFF = 5; // Eastern Standard Time is 5 hours behind UTC mostly
+    const tomorrow = new Date(Date.now() + (24 - EST_UTC_HOUR_DIFF) * 60 * 60 * 1000);
     const shortDate = tomorrow.toLocaleDateString('en-CA');
 
     const newName = containingFolder.data.name?.replace(/<.+>/, "").trim().replace(/$/, ` <${shortDate}>`);
