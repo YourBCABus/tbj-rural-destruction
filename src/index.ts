@@ -83,13 +83,13 @@ const main = async () => {
                     e ? e.toString() : "<No error message available>",
                 );
             }
-            console.log("Spawning process in 5 minutes");
-            await new Promise(res => setTimeout(res, 1000 * 60 * 5));
+            console.log("Spawning process in 10 minutes");
+            await new Promise(res => setTimeout(res, 1000 * 60 * 10));
             console.log("Starting oneshot process now");
             exec('npm run oneshot', async (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Error in oneshot: ${error}`);
-                    await state.sendWebhookError("Error retrying oneshot", error.message, error.stack ?? "<No stack trace available>");
+                    await state.sendWebhookError("Error retrying with oneshot", error.message, error.stack ?? "<No stack trace available>");
                     return;
                 }
                 console.log(stdout);
