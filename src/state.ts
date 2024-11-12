@@ -34,11 +34,11 @@ export default class DestructionState {
         const newSpreadsheetId = await copySpreadsheet(this.#currSheetId);
         console.log("Created copy of spreadsheet");
         
-        await copyPerms(this.#currSheetId, newSpreadsheetId);
-        console.log("Populated perms from original to clone")
-
         await this.#eurekaContext.setSpreadsheetid(newSpreadsheetId);
         console.log("Updated spreadsheetId stored on the DB");
+
+        await copyPerms(this.#currSheetId, newSpreadsheetId);
+        console.log("Populated perms from original to clone")
 
         await deleteSheet(this.#currSheetId);
         console.log("Permanantly deleted original spreadsheet");
