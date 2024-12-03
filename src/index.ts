@@ -69,11 +69,11 @@ const main = async () => {
                 console.error(e.stack);
                 console.error(e);
 
-                await state.sendWebhookError(
-                    "An error occurred while running the version history clear",
-                    e.message,
-                    e.stack ?? "<No stack trace available>",
-                );
+                // await state.sendWebhookError(
+                //     "An error occurred while running the version history clear",
+                //     e.message,
+                //     e.stack ?? "<No stack trace available>",
+                // );
             } else {
                 console.error("Unknown error type:", e);
 
